@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common'; // Required for standalone components
-import { ReactiveFormsModule } from '@angular/forms'; // Reactive forms support
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { PasswordModule } from 'primeng/password';
 import { Router } from '@angular/router';
-import { AuthService } from '../../auth.service'; // Import your auth service
+import { AuthService } from '../../auth.service';
 
 @Component({
   selector: 'app-regestration',
@@ -28,7 +28,7 @@ export class RegestrationComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService // Use the AuthService for Firebase
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
@@ -43,7 +43,7 @@ export class RegestrationComponent implements OnInit {
     );
   }
 
-  // Custom Validator to match passwords
+
   passwordMatchValidator(form: FormGroup) {
     return form.get('password')?.value === form.get('confirmPassword')?.value
       ? null
@@ -55,14 +55,14 @@ export class RegestrationComponent implements OnInit {
       const { email, password } = this.registrationForm.value;
 
       this.authService
-        .register(email, password) // Call the AuthService to register
+        .register(email, password)
         .then(() => {
           console.log('Registration successful');
-          this.router.navigate(['/login']); // Navigate to login page
+          this.router.navigate(['/login']);
         })
         .catch((error) => {
           console.error('Registration failed:', error);
-          this.errorMessage = error.message; // Show error message
+          this.errorMessage = error.message;
         });
     }
   }

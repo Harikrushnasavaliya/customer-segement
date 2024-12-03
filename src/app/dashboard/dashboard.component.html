@@ -1,7 +1,6 @@
 <div class="dashboard-container">
   <h2>Upload Data and Generate Graphs</h2>
 
-  <!-- File Upload -->
   <div class="file-upload">
     <label for="file">Upload Files (CSV or Excel):</label>
     <input
@@ -13,7 +12,6 @@
     />
   </div>
 
-  <!-- Dropdowns for Column Selection -->
   <div class="column-selection" *ngIf="columns.length > 0">
     <label for="labelColumn">Select Column for Labels:</label>
     <select id="labelColumn" [formControl]="labelColumn" (change)="generateChartData()">
@@ -26,7 +24,6 @@
     </select>
   </div>
 
-  <!-- Graphs Section -->
   <h3>Generated Graphs</h3>
   <div class="graphs" *ngIf="chartData">
     <div class="graph" *ngFor="let graphType of selectedGraphs; let i = index">
@@ -38,14 +35,12 @@
     </div>
   </div>
 
-  <!-- Export Buttons -->
   <div class="export-buttons">
     <button (click)="downloadEachSeparatedFile()">Download Each File Separately</button>
     <button (click)="downloadAllSeparatedData()">Download All Data (Multiple Sheets)</button>
     <button (click)="downloadAllDataSingleSheet()">Download All Data (Single Sheet)</button>
   </div>
 
-  <!-- Table for Filtered Data -->
   <div class="data-table" *ngIf="filteredData.length > 0">
     <h3>Data Table</h3>
     <table>

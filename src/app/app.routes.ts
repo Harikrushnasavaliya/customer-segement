@@ -19,5 +19,5 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
   },
-  { path: '**', redirectTo: '/login' }, // Wildcard route for undefined paths
+  { path: '**', redirectTo: '/login' },
 ];

@@ -1,16 +1,17 @@
-import { AngularFireModule } from '@angular/fire/compat';
-import { AngularFireAuthModule } from '@angular/fire/compat/auth';
-import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
-import { AngularFireStorageModule } from '@angular/fire/compat/storage';
-import { environment } from '../environments/environment';
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
+import { AppComponent } from './app.component';
+import { routes } from './app.routes';
 
 @NgModule({
-    imports: [
-        AngularFireModule.initializeApp(environment.firebase),
-        AngularFireAuthModule,
-        AngularFirestoreModule,
-        AngularFireStorageModule,
+    declarations: [
     ],
+    imports: [
+        AppComponent,
+        BrowserModule,
+        RouterModule.forRoot(routes),
+    ],
+    bootstrap: [],
 })
 export class AppModule { }

@@ -45,7 +45,7 @@ export class DashboardComponent {
   selectedQuaternaryValue: string | null = null;
   primaryColumnSelected: boolean = false;
   secondaryColumnSelected: boolean = false;
-  uploadedFiles: any[] = []; // For storing Firebase uploaded file metadata
+  uploadedFiles: any[] = [];
 
   form: FormGroup = new FormGroup({
     labelColumn: new FormControl(''),
@@ -123,7 +123,6 @@ export class DashboardComponent {
 
       const labelColumn = this.form.controls['labelColumn'].value;
 
-      // Match with clustering results if clustering is applied
       const filteredData = this.clusterResults
         ? this.clusterResults
           .filter((result: any) => result.cluster === chartElementIndex)
@@ -168,7 +167,7 @@ export class DashboardComponent {
               uploadedAt: new Date(),
             };
             this.firestore.collection('files').add(fileMetadata);
-            this.loadUploadedFiles(); // Refresh uploaded files
+            this.loadUploadedFiles();
           });
         })
       )
@@ -180,10 +179,10 @@ export class DashboardComponent {
     const files = event.target.files;
     if (files && files.length > 0) {
       for (let file of files) {
-        this.uploadFileToFirebase(file); // Upload to Firebase
-        this.processFile(file); // Process for charting
+        this.uploadFileToFirebase(file);
+        this.processFile(file);
       }
-      event.target.value = ''; // Reset file input
+      event.target.value = '';
     }
   }
 
@@ -298,7 +297,7 @@ export class DashboardComponent {
       return;
     }
     const clusteringData = this.fileData.map((row) => [parseFloat(row[valueColumn]) || 0]);
-    const k = 3; // Number of clusters
+    const k = 3;
     try {
       const results = kmeans(clusteringData, k);
       this.clusterResults = results.clusters.map((cluster: number, index: number) => ({

@@ -5,10 +5,10 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterModule], // Include DashboardComponent here
+  imports: [RouterModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
-  title = 'Angular Standalone Application'; // Example title
+  title = 'Angular Standalone Application';
 }
