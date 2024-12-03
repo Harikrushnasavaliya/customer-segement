@@ -1,0 +1,96 @@
+.asdf{
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background:url('../4.webp') no-repeat center center;
+  background-size: cover;
+}
+.login-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 30px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background: white;
+
+  background-size: cover;
+  position: relative;
+}
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9); /* Adds an overlay for better readability */
+  z-index: 1;
+  border-radius: 10px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2; /* Keeps the text above the overlay */
+}
+
+.p-field {
+  margin-bottom: 15px;
+  position: relative;
+  z-index: 2;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  position: relative;
+  z-index: 2;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  position: relative;
+  z-index: 2;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.extra-options {
+  margin-top: 20px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.extra-options a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.extra-options a:hover {
+  text-decoration: underline;
+}

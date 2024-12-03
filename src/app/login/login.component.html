@@ -1,0 +1,31 @@
+<div class="login-container">
+  <h2>Customer Login</h2>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input id="email" type="email" formControlName="email" placeholder="Enter your email" />
+      <small *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+        <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required.</span>
+        <span *ngIf="loginForm.get('email')?.errors?.['email']">Enter a valid email.</span>
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input id="password" type="password" formControlName="password" placeholder="Enter your password" />
+      <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+        <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</span>
+      </small>
+    </div>
+
+    <button type="submit" [disabled]="loginForm.invalid">Login</button>
+    <div class="links">
+      <p>
+        <a (click)="forgotpassword()">Forgot Password?</a>
+      </p>
+      <p>
+        <a (click)="navigateToRegister()">Register</a>
+      </p>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,71 @@
+<div class="registration-container">
+  <h2>Register</h2>
+  <form [formGroup]="registrationForm" (ngSubmit)="onRegister()">
+    <div>
+      <label for="name">Name</label>
+      <input id="name" pInputText type="text" formControlName="name" placeholder="Enter your name" />
+      <small *ngIf="
+          registrationForm.get('name')?.invalid &&
+          registrationForm.get('name')?.touched
+        ">
+        <span *ngIf="registrationForm.get('name')?.errors?.['required']">
+          Name is required.
+        </span>
+      </small>
+    </div>
+
+    <div>
+      <label for="email">Email</label>
+      <input id="email" pInputText type="email" formControlName="email" placeholder="Enter your email" />
+      <small *ngIf="
+          registrationForm.get('email')?.invalid &&
+          registrationForm.get('email')?.touched
+        ">
+        <span *ngIf="registrationForm.get('email')?.errors?.['required']">
+          Email is required.
+        </span>
+        <span *ngIf="registrationForm.get('email')?.errors?.['email']">
+          Enter a valid email.
+        </span>
+      </small>
+    </div>
+
+    <div>
+      <label for="password">Password</label>
+      <input id="password" pPassword formControlName="password" placeholder="Enter your password" />
+      <small *ngIf="
+          registrationForm.get('password')?.invalid &&
+          registrationForm.get('password')?.touched
+        ">
+        <span *ngIf="registrationForm.get('password')?.errors?.['required']">
+          Password is required.
+        </span>
+        <span *ngIf="registrationForm.get('password')?.errors?.['minlength']">
+          Password must be at least 6 characters.
+        </span>
+      </small>
+    </div>
+
+    <div>
+      <label for="confirmPassword">Confirm Password</label>
+      <input id="confirmPassword" pPassword formControlName="confirmPassword" placeholder="Confirm your password" />
+      <small *ngIf="
+          registrationForm.get('confirmPassword')?.invalid &&
+          registrationForm.get('confirmPassword')?.touched
+        ">
+        <span *ngIf="registrationForm.get('confirmPassword')?.errors?.['required']">
+          Confirmation is required.
+        </span>
+        <span *ngIf="registrationForm.errors?.['mismatch']">
+          Passwords do not match.
+        </span>
+      </small>
+    </div>
+
+    <button pButton type="submit" label="Register" [disabled]="registrationForm.invalid"></button>
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+  </form>
+  <p>
+    Already have an
