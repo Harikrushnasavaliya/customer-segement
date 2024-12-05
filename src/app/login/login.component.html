@@ -1,31 +1,40 @@
+<div class="asdf">
 <div class="login-container">
-  <h2>Customer Login</h2>
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="email">Email:</label>
-      <input id="email" type="email" formControlName="email" placeholder="Enter your email" />
-      <small *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-        <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required.</span>
-        <span *ngIf="loginForm.get('email')?.errors?.['email']">Enter a valid email.</span>
-      </small>
-    </div>
+    <h2>Customer Login</h2>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="p-field">
+        <label for="email">Email:</label>
+        <input id="email" pInputText type="email" formControlName="email" placeholder="Enter your email" />
+        <small *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required.</span>
+          <span *ngIf="loginForm.get('email')?.errors?.['email']">Enter a valid email.</span>
+        </small>
+      </div>
+  
+      <div class="p-field">
+        <label for="password">Password:</label>
+        <input id="password" pPassword formControlName="password" placeholder="Enter your password" />
+        <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</span>
+          <span *ngIf="loginForm.get('password')?.errors?.['minlength']">
+            Password must be at least 6 characters.
+          </span>
+        </small>
+      </div>
+  
+      <button pButton type="submit" label="Login" [disabled]="loginForm.invalid"></button>
+  
+      <div class="extra-options">
+        <p>
+          New customer? 
+          <a (click)="navigateToRegister()">Register here</a>
+        </p>
+        <p>
+          <!-- <a routerLink="/forgot-password">Forgot username or password?</a> -->
+          <a (click)="forgotpassword()">Forgot username and password</a>
 
-    <div class="form-group">
-      <label for="password">Password:</label>
-      <input id="password" type="password" formControlName="password" placeholder="Enter your password" />
-      <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-        <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</span>
-      </small>
-    </div>
-
-    <button type="submit" [disabled]="loginForm.invalid">Login</button>
-    <div class="links">
-      <p>
-        <a (click)="forgotpassword()">Forgot Password?</a>
-      </p>
-      <p>
-        <a (click)="navigateToRegister()">Register</a>
-      </p>
-    </div>
-  </form>
+        </p>
+      </div>
+    </form>
+  </div>
 </div>

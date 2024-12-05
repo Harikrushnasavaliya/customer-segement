@@ -1,4 +1,3 @@
-
 export const environment = {
     production: false,
     firebase: {
@@ -11,4 +10,3 @@ export const environment = {
         measurementId: "G-0V8QZ2FZEW",
     },
 };
-
