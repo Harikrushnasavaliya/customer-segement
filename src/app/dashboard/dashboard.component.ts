@@ -431,8 +431,10 @@ import { kmeans } from 'ml-kmeans';
 import { finalize } from 'rxjs/operators';
 import { getStorage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
-import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { collection, collectionData, doc, Firestore, getDocs, getFirestore, provideFirestore, query, setDoc, where } from '@angular/fire/firestore';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { Observable } from 'rxjs';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 type ChartType = 'bar' | 'line' | 'scatter' | 'bubble' | 'pie' | 'doughnut' | 'polarArea' | 'radar';
 
@@ -476,7 +478,7 @@ export class DashboardComponent implements OnInit {
     tertiaryColumn: new FormControl(''),
   });
 
-  constructor(private firestore: AngularFirestore, private storage: AngularFireStorage) { console.log('Firestore Initialized:', this.firestore); }
+  constructor(private firestore: Firestore, private storage: AngularFireStorage, private firestoree: Firestore, private auth: AngularFireAuth) { }
   get labelColumn(): FormControl {
     return this.form.get('labelColumn') as FormControl;
   }
@@ -487,14 +489,7 @@ export class DashboardComponent implements OnInit {
 
 
   ngOnInit() {
-    debugger
-    this.firestore
-      .collection('testCollection')
-      .valueChanges()
-      .subscribe(
-        data => console.log('Fetched data:', data),
-        error => console.error('Error fetching data:', error)
-      );
+    this.fetchCollectionData('testCollection');
     this.loadUploadedFiles();
     this.chartOptions = {
       responsive: true,
@@ -509,36 +504,116 @@ export class DashboardComponent implements OnInit {
           },
         },
       },
+      onClick: (event: any, elements: any[]) => {
+        if (elements.length > 0) {
+          const chartEvent = {
+            event,
+            elements,
+          };
+          this.onChartClick(chartEvent);
+        }
+      },
     };
+
+  }
+
+  fetchCollectionData(collectionName: string) {
+    const collectionRef = collection(this.firestore, collectionName);
+    collectionData(collectionRef, { idField: 'id' }).subscribe(
+      (data: any) => {
+        console.log('Fetched collection data:', data);
+      },
+      (error: any) => {
+        console.error('Error fetching collection data:', error);
+      }
+    );
+  }
+
+  addFile(fileMetadata: any) {
+    const filesCollection = collection(this.firestore, 'files');
+    const docRef = doc(filesCollection);
+    setDoc(docRef, fileMetadata)
+      .then(() => console.log('File metadata added successfully'))
+      .catch((error) => console.error('Error adding file metadata:', error));
   }
 
   async loadUploadedFiles() {
-    this.firestore.collection('files').valueChanges().subscribe((files: any[]) => {
-      this.uploadedFiles = files;
-    });
+    try {
+      const user = await this.auth.currentUser;
+      if (user) {
+        const filesCollection = collection(this.firestore, 'files');
+        const q = query(filesCollection, where('userId', '==', user.uid));
+        collectionData(q, { idField: 'id' }).subscribe(
+          (files: any[]) => {
+            this.uploadedFiles = files;
+            console.log('Uploaded files:', this.uploadedFiles);
+          },
+          (error: any) => console.error('Error loading uploaded files:', error)
+        );
+      } else {
+        console.error('User not logged in!');
+      }
+    } catch (error) {
+      console.error('Error getting current user:', error);
+    }
   }
 
-  uploadFileToFirebase(file: File) {
-    const filePath = `uploads/${file.name}`;
-    const fileRef = this.storage.ref(filePath);
-    const uploadTask = this.storage.upload(filePath, file);
+  async fetchUserFiles(userId: string) {
+    const filesCollection = collection(this.firestore, 'files');
+    const q = query(filesCollection, where('userId', '==', userId));
 
-    uploadTask
-      .snapshotChanges()
-      .pipe(
-        finalize(() => {
-          fileRef.getDownloadURL().subscribe((url) => {
-            const fileMetadata = {
-              name: file.name,
-              url,
-              uploadedAt: new Date(),
-            };
-            this.firestore.collection('files').add(fileMetadata);
-            this.loadUploadedFiles();
-          });
-        })
-      )
-      .subscribe();
+    try {
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        console.log(doc.id, '=>', doc.data());
+      });
+    } catch (error) {
+      console.error('Error fetching user files:', error);
+    }
+  }
+  async uploadFileToFirebase(file: File) {
+    this.auth.currentUser
+      .then((user) => {
+        if (user) {
+          const filePath = `uploads/${user.uid}/${file.name}`;
+          const fileRef = this.storage.ref(filePath);
+          const uploadTask = this.storage.upload(filePath, file);
+
+          uploadTask
+            .snapshotChanges()
+            .pipe(
+              finalize(() => {
+                fileRef.getDownloadURL().subscribe(
+                  (url) => {
+                    const fileMetadata = {
+                      name: file.name,
+                      url,
+                      userId: user.uid,
+                      uploadedAt: new Date(),
+                    };
+                    this.addFileMetadataToFirestore(fileMetadata);
+                    console.log('File uploaded successfully:', url);
+                  },
+                  (error) => {
+                    console.error('Error generating download URL:', error);
+                  }
+                );
+              })
+            )
+            .subscribe();
+        } else {
+          console.error('User not logged in!');
+        }
+      })
+      .catch((error) => console.error('Error getting current user:', error));
+  }
+
+  addFileMetadataToFirestore(fileMetadata: any) {
+    const filesCollection = collection(this.firestore, 'files');
+    const docRef = doc(filesCollection);
+    setDoc(docRef, fileMetadata)
+      .then(() => console.log('File metadata added successfully:', fileMetadata))
+      .catch((error) => console.error('Error adding file metadata:', error));
   }
 
   onFileUpload(event: any) {
@@ -564,7 +639,6 @@ export class DashboardComponent implements OnInit {
         console.error('Unsupported file type:', file.name);
       }
     };
-
     if (file.name.endsWith('.csv')) {
       reader.readAsText(file);
     } else {
@@ -615,12 +689,16 @@ export class DashboardComponent implements OnInit {
       this.chartData = null;
       return;
     }
-
     const aggregatedData: any = {};
+    const groupedData: { [key: string]: any[] } = {};
     this.fileData.forEach((row) => {
       const label = row[labelColumn];
       const value = parseFloat(row[valueColumn]) || 0;
       aggregatedData[label] = (aggregatedData[label] || 0) + value;
+      if (!groupedData[label]) {
+        groupedData[label] = [];
+      }
+      groupedData[label].push(row);
     });
 
     this.chartData = {
@@ -629,11 +707,15 @@ export class DashboardComponent implements OnInit {
         {
           label: `${valueColumn} by ${labelColumn}`,
           data: Object.values(aggregatedData),
-          backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726', '#AB47BC', '#EC407A', '#7E57C2', '#26A69A', '#FF7043'],
+          backgroundColor: [
+            '#42A5F5', '#66BB6A', '#FFA726', '#AB47BC', '#EC407A', '#7E57C2', '#26A69A', '#FF7043',
+          ],
         },
       ],
     };
+    this.filteredData = Object.values(groupedData).flat();
   }
+
 
   applyKMeansClustering() {
     const valueColumn = this.form.controls['valueColumn'].value;
@@ -672,7 +754,6 @@ export class DashboardComponent implements OnInit {
       groupedData[label] = groupedData[label] || [];
       groupedData[label].push(row);
     });
-
     Object.keys(groupedData).forEach((label) => {
       this.exportToExcel(groupedData[label], `${label}_Data`);
     });
@@ -703,13 +784,20 @@ export class DashboardComponent implements OnInit {
       this.currentSortColumn = column;
       this.sortOrder = 'asc';
     }
-
-    this.fileData.sort((a, b) => {
+    this.filteredData.sort((a, b) => {
       const valueA = a[column];
       const valueB = b[column];
-      return this.sortOrder === 'asc' ? valueA - valueB : valueB - valueA;
+      if (typeof valueA === 'string' && typeof valueB === 'string') {
+        return this.sortOrder === 'asc'
+          ? valueA.localeCompare(valueB)
+          : valueB.localeCompare(valueA);
+      } else if (typeof valueA === 'number' && typeof valueB === 'number') {
+        return this.sortOrder === 'asc' ? valueA - valueB : valueB - valueA;
+      }
+      return 0;
     });
   }
+
 
   downloadAllSeparatedData() {
     const labelColumn = this.form.controls['labelColumn'].value;
@@ -737,6 +825,23 @@ export class DashboardComponent implements OnInit {
     const newType = (target as HTMLSelectElement)?.value as ChartType;
     if (newType) {
       this.selectedGraphs[index] = newType;
+    }
+  }
+  onChartClick(event: any) {
+    if (event && event.elements && event.elements.length > 0) {
+      const chartElementIndex = event.elements[0].index;
+      const clickedLabel = this.chartData.labels[chartElementIndex];
+
+      const labelColumn = this.form.controls['labelColumn'].value;
+      const filteredData = this.fileData.filter((row) => row[labelColumn] === clickedLabel);
+
+      if (filteredData.length > 0) {
+        this.exportToExcel(filteredData, `${clickedLabel}_Data`);
+      } else {
+        console.warn(`No data found for label: ${clickedLabel}`);
+      }
+    } else {
+      console.warn('No chart element clicked.');
     }
   }
 }
